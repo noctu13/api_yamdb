@@ -1,8 +1,12 @@
 from rest_framework import serializers
-from api.models import User
+from api.models import Client
 
-class UserSerializer(serializers.ModelSerializer):
+class ClientSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
-        fields = '__all__'
+        model = Client
+        fields = ('email',)
+    
+    def create(self, validated_data):
+        #some modifications here?
+        return super().create(validated_data)
