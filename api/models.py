@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
-from django.utils.crypto import get_random_string
 
 from django.db import models
 
@@ -16,11 +15,9 @@ class ClientManager(UserManager):
             raise ValueError('The Email must be set')
         email = self.normalize_email(email)
         username = self.model.normalize_username(username)
-        confirmation_code = get_random_string()
         client = self.model(
             username=username,
             email=email,
-            confirmation_code=confirmation_code,
             **extra_fields
         )
         client.set_password(password)

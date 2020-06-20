@@ -1,17 +1,11 @@
 from django.core.mail import send_mail
+from django.utils.crypto import get_random_string
 
 from rest_framework import serializers
+from rest_framework_jwt.serializers import JSONWebTokenSerializer
 
 from api.models import Client
 
-def send_confirmation_mail(client):
-    send_mail(
-        'Yambd account activation',
-        'confirmation_code: ' + str(client.confirmation_code),
-        'admin@yambd.com',
-        [client.email],
-        fail_silently=False,
-    )
 
 class AuthSerializer(serializers.ModelSerializer):
 
@@ -21,17 +15,32 @@ class AuthSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['is_active'] = False
+        validated_data['confirmation_code'] = get_random_string()
         client = super().create(validated_data)
-        send_confirmation_mail(client)
+        send_mail(
+            'Yambd account activation',
+            'confirmation_code: ' + client.confirmation_code,
+            'admin@yambd.com',
+            [client.email],
+            fail_silently=False,
+        )
         return client
 
-    #проверка confirmation_code?
+class TokenSerializer(JSONWebTokenSerializer):
+    pass
 
 class ClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Client
-        fields = '__all__'
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role',
+        )
         extra_kwargs = {
             'username': {'required': True}
         }
