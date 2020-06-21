@@ -5,7 +5,7 @@ from rest_framework import viewsets, generics, filters, pagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_jwt.views import ObtainJSONWebToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api.models import Client
 from api.serializers import (
@@ -35,19 +35,19 @@ class AuthViewSet(generics.CreateAPIView):
             fail_silently=False,
         )
 
-class TokenViewSet(ObtainJSONWebToken):
+class TokenViewSet(TokenObtainPairView):
     serializer_class = TokenSerializer
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-    permission_classes = [IsAuthenticated and IsAdminClient]
+    permission_classes = [IsAdminClient]
     filter_backends = [filters.SearchFilter]
     search_fields = ['username',]
     pagination_class = pagination.PageNumberPagination
     lookup_field = 'username'
 
-    @action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get', 'patch'], permission_classes = [IsAuthenticated])
     def me(self, request):
         if request.method == 'GET':
             serializer = ClientSerializer(request.user)

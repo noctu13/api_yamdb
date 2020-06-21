@@ -1,14 +1,10 @@
 from django.utils.translation import ugettext as _
 
 from rest_framework import serializers
-from rest_framework_jwt.serializers import JSONWebTokenSerializer
-from rest_framework_jwt.settings import api_settings
+from rest_framework_simplejwt.serializers import TokenObtainSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.models import Client
-
-
-jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
 class AuthSerializer(serializers.ModelSerializer):
@@ -17,10 +13,10 @@ class AuthSerializer(serializers.ModelSerializer):
         model = Client
         fields = ('email',)
 
-class TokenSerializer(JSONWebTokenSerializer):
+class TokenSerializer(TokenObtainSerializer):
 
     def __init__(self, *args, **kwargs):
-        super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
+        super(TokenObtainSerializer, self).__init__(*args, **kwargs)
         self.fields[self.username_field] = serializers.CharField()
         self.fields['confirmation_code'] = serializers.CharField()
 
@@ -39,11 +35,11 @@ class TokenSerializer(JSONWebTokenSerializer):
             except Client.DoesNotExist:
                 user = None
             if user:
-                payload = jwt_payload_handler(user)
                 user.is_active = True
                 user.save()
+                refresh = RefreshToken.for_user(user)
                 return {
-                    'token': jwt_encode_handler(payload)
+                    'token': str(refresh.access_token)
                 }
             else:
                 msg = _('Unable to log in with provided credentials.')
