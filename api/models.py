@@ -5,9 +5,9 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 
 class Role(models.TextChoices):
-    USER = 'U', _('user')
-    MODERATOR = 'M', _('moderator')
-    ADMIN = 'A', _('admin')
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
 
 class ClientManager(UserManager):
     def _create_user(self, email, username=None, password=None, **extra_fields):
@@ -56,7 +56,7 @@ class Client(AbstractUser):
         null=True,
     )
     role = models.CharField(
-        max_length=1,
+        max_length=10,
         choices=Role.choices,
         default=Role.USER,
     )

@@ -18,13 +18,11 @@ class AuthSerializer(serializers.ModelSerializer):
         fields = ('email',)
 
 class TokenSerializer(JSONWebTokenSerializer):
-    #спцефичный header -> Authorization: JWT token
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
         self.fields[self.username_field] = serializers.CharField()
         self.fields['confirmation_code'] = serializers.CharField()
-        self.fields['password'].required = False
 
     def validate(self, attrs):
         field = 'confirmation_code'

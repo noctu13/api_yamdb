@@ -1,7 +1,8 @@
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
+from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, filters, pagination
 from rest_framework_jwt.views import ObtainJSONWebToken
 
 from api.models import Client
@@ -39,3 +40,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username',]
+    pagination_class = pagination.PageNumberPagination
+    lookup_field = 'username'
