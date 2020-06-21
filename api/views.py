@@ -13,7 +13,7 @@ from api.serializers import (
     ClientSerializer,
     TokenSerializer,
 )
-from api.permissions import IsAdminClient, IsModeratorClient
+from api.permissions import IsAdminClient
 
 
 class AuthViewSet(generics.CreateAPIView):
@@ -42,9 +42,9 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [IsAdminClient]
+    pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['username',]
-    pagination_class = pagination.PageNumberPagination
     lookup_field = 'username'
 
     @action(detail=False, methods=['get', 'patch'], permission_classes = [IsAuthenticated])
