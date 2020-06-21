@@ -18,12 +18,13 @@ class AuthSerializer(serializers.ModelSerializer):
         fields = ('email',)
 
 class TokenSerializer(JSONWebTokenSerializer):
-    #спцефицный header -> Authorization: JWT token
+    #спцефичный header -> Authorization: JWT token
 
     def __init__(self, *args, **kwargs):
-        super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields[self.username_field] = serializers.CharField()
         self.fields['confirmation_code'] = serializers.CharField()
+        self.fields['password'].required = False
 
     def validate(self, attrs):
         field = 'confirmation_code'
@@ -32,11 +33,13 @@ class TokenSerializer(JSONWebTokenSerializer):
             field: attrs.get(field)
         }
         if all(credentials.values()):
-            #нужна обработка DoesNotExist
-            user = Client.objects.get(
-                email=credentials[self.username_field],
-                confirmation_code=credentials[field]
-            )
+            try:
+                user = Client.objects.get(
+                    email=credentials[self.username_field],
+                    confirmation_code=credentials[field]
+                )
+            except Client.DoesNotExist:
+                user = None
             if user:
                 payload = jwt_payload_handler(user)
                 user.is_active = True
