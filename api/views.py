@@ -13,7 +13,7 @@ from api.serializers import (
     ClientSerializer,
     TokenSerializer,
 )
-from api.permissions import IsOwnerOrReadOnly
+from api.permissions import IsAdminClient, IsModeratorClient
 
 
 class AuthViewSet(generics.CreateAPIView):
@@ -41,7 +41,7 @@ class TokenViewSet(ObtainJSONWebToken):
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated and IsAdminClient]
     filter_backends = [filters.SearchFilter]
     search_fields = ['username',]
     pagination_class = pagination.PageNumberPagination
