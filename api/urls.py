@@ -1,23 +1,22 @@
-from django.urls import path, include
-#from rest_framework.authtoken import views
-from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 
+from django.conf.urls import include
+from django.urls import path
 
-from .views import ReviewViewSet, CommentViewSet, TitleViewSet, CategoryViewSet, GenreViewSet
-#from . import views
+from rest_framework import routers
 
-router = DefaultRouter()
-router.register('categories', CategoryViewSet, basename='categories')
-router.register('genres', GenreViewSet, basename='genres')
-router.register('titles', TitleViewSet, basename='titles')
-router.register(r'titles/(?P<title_id>\d+)/reviews', ReviewViewSet, basename='reviews') 
-router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments', CommentViewSet, basename='comments')
+from api import views
+
+router = routers.DefaultRouter()
+router.register('users', views.ClientViewSet)
+router.register('categories', views.CategoryViewSet, basename='categories')
+router.register('genres', views.GenreViewSet, basename='genres')
+router.register('titles', views.TitleViewSet, basename='titles')
+router.register(r'titles/(?P<title_id>\d+)/reviews', views.ReviewViewSet, basename='reviews') 
+router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments', views.CommentViewSet, basename='comments')
 
 urlpatterns = [
-    path('', include(router.urls)), 
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'), 
+    path('auth/email/', views.AuthViewSet.as_view()),
+    path('auth/token/', views.TokenViewSet.as_view()),
+    path('', include(router.urls)),
 ]
+
