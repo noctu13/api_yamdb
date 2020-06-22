@@ -1,9 +1,13 @@
-from .models import Category, Genre, Title
+from .models import Category, Genre, Title, User
 from .filters import TitleFilter
-from .permissions import IsAdminOrReadOnly
-from .serializers import CategorySerializer, GenreSerializer, TitleReadSerializer, TitleWriteSerializer
+from .serializers import CategorySerializer, GenreSerializer, TitleReadSerializer, TitleWriteSerializer, UserSerializer
 from rest_framework import filters, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
