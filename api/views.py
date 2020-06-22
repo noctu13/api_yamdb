@@ -94,10 +94,7 @@ class GenreViewSet(mixins.CreateModelMixin,
     search_fields = ['name', ]
 
 
-class TitleViewSet(mixins.CreateModelMixin,
-                   mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   viewsets.GenericViewSet):
+class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [DjangoFilterBackend]
