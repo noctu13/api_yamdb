@@ -1,6 +1,6 @@
-from .models import Category, Genre, Title, User
+from .models import Category, Genre, Title
 from .filters import TitleFilter
-from .serializers import CategorySerializer, GenreSerializer, TitleReadSerializer, TitleWriteSerializer, UserSerializer
+from .serializers import CategorySerializer, GenreSerializer, TitleReadSerializer, TitleWriteSerializer
 from rest_framework import filters, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 

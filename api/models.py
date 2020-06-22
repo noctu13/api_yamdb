@@ -10,6 +10,7 @@ class Role(models.TextChoices):
     MODERATOR = 'moderator'
     ADMIN = 'admin'
 
+
 class ClientManager(UserManager):
     def _create_user(self, email, username=None, password=None, **extra_fields):
         if not email:
@@ -41,6 +42,7 @@ class ClientManager(UserManager):
             raise ValueError('Superuser must have is_superuser=True.')
 
         return self._create_user(email, username, password, **extra_fields)
+
 
 class Client(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)

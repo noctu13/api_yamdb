@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Category, Genre, Title, User, Client
+from .models import Category, Genre, Title, Client
 
 
 class AuthSerializer(serializers.ModelSerializer):
@@ -11,6 +11,7 @@ class AuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = ('email',)
+
 
 class TokenSerializer(TokenObtainSerializer):
 
