@@ -1,13 +1,12 @@
 from .models import Category, Genre, Title
 from .filters import TitleFilter
 from .serializers import CategorySerializer, GenreSerializer, TitleReadSerializer, TitleWriteSerializer
-from rest_framework import filters, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 
-from rest_framework import viewsets, generics, filters, pagination
+from rest_framework import viewsets, generics, filters, pagination, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -19,7 +18,7 @@ from api.serializers import (
     ClientSerializer,
     TokenSerializer,
 )
-from api.permissions import IsAdminClient
+from .permissions import IsAdminClient, IsAdminOrReadOnly
 
 
 class AuthViewSet(generics.CreateAPIView):
@@ -41,8 +40,10 @@ class AuthViewSet(generics.CreateAPIView):
             fail_silently=False,
         )
 
+
 class TokenViewSet(TokenObtainPairView):
     serializer_class = TokenSerializer
+
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
@@ -50,7 +51,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminClient]
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter]
-    search_fields = ['username',]
+    search_fields = ['username', ]
     lookup_field = 'username'
 
     @action(detail=False, methods=['get', 'patch'], permission_classes = [IsAuthenticated])
@@ -69,27 +70,36 @@ class ClientViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(mixins.CreateModelMixin,
+                      mixins.DestroyModelMixin,
+                      mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    # permission_classes = [IsAdminOrReadOnly, ]
+    permission_classes = [IsAdminOrReadOnly, ]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(mixins.CreateModelMixin,
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    # permission_classes = [IsAdminOrReadOnly, ]
+    permission_classes = [IsAdminOrReadOnly, ]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
 
 
-class TitleViewSet(viewsets.ModelViewSet):
+class TitleViewSet(mixins.CreateModelMixin,
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
     queryset = Title.objects.all()
-    # permission_classes = [IsAdminOrReadOnly,]
+    permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 

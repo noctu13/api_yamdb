@@ -8,13 +8,14 @@ class IsAdminOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         else:
-            return request.user.is_staff
+            return bool(request.user and request.user.is_authenticated and request.user.role == Role.ADMIN)
 
 
 class IsAdminClient(BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated
                     and request.user.role == Role.ADMIN)
+
 
 class IsModeratorClient(BasePermission):
     def has_permission(self, request, view):
