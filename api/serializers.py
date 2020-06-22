@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Category, Genre, Title, Client
+from .models import Category, Genre, Title, Client, Review, Comment
 
 
 class AuthSerializer(serializers.ModelSerializer):
@@ -48,6 +48,7 @@ class TokenSerializer(TokenObtainSerializer):
             msg = _('Must include "{username_field}" and "{field}".')
             msg = msg.format(username_field=self.username_field)
             raise serializers.ValidationError(msg)
+
 
 class ClientSerializer(serializers.ModelSerializer):
 
@@ -97,3 +98,21 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
         model = Title
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    author = serializers.CharField(source="author.username", read_only=True)
+
+    class Meta:
+        fields = ('id', 'title', 'text', 'score','author', 'pub_date')
+        model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    author = serializers.CharField(source="author.username", read_only=True)
+
+    class Meta:
+        fields = ('id', 'review', 'text', 'pub_date', 'author')
+        model = Comment

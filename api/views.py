@@ -1,24 +1,19 @@
-from .models import Category, Genre, Title
-from .filters import TitleFilter
-from .serializers import CategorySerializer, GenreSerializer, TitleReadSerializer, TitleWriteSerializer
 from django_filters.rest_framework import DjangoFilterBackend
-
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
+from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets, generics, filters, pagination, mixins
+from rest_framework import viewsets, generics, filters, pagination, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from api.models import Client
-from api.serializers import (
-    AuthSerializer,
-    ClientSerializer,
-    TokenSerializer,
-)
-from .permissions import IsAdminClient, IsAdminOrReadOnly
+from .models import Category, Genre, Title, Review, Comment, Client
+from .serializers import CategorySerializer, GenreSerializer, TitleReadSerializer, TitleWriteSerializer, \
+    AuthSerializer, ClientSerializer, TokenSerializer, ReviewSerializer, CommentSerializer
+from .permissions import IsAdminClient, IsAdminOrReadOnly, IsAuthorOrReadOnly
+from .filters import TitleFilter
 
 
 class AuthViewSet(generics.CreateAPIView):
@@ -104,3 +99,35 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return TitleReadSerializer
         return TitleWriteSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly)
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id = self.kwargs.get('title_id'))
+        queryset = Review.objects.filter(title=title)
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = Review.objects.get(title=title, id=self.kwargs.get('review_id'))
+        queryset = Comment.objects.filter(review=review)
+        return queryset
