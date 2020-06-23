@@ -105,7 +105,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source="author.username", read_only=True)
 
     class Meta:
-        fields = ('id', 'title', 'text', 'score','author', 'pub_date')
+        fields = ('id', 'text', 'score', 'author', 'pub_date')
         model = Review
 
 
@@ -114,5 +114,5 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source="author.username", read_only=True)
 
     class Meta:
-        fields = ('id', 'review', 'text', 'pub_date', 'author')
+        fields = ('id', 'text', 'pub_date', 'author')
         model = Comment

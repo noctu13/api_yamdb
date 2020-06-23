@@ -102,29 +102,45 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly)
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
     def get_queryset(self):
-        title = get_object_or_404(Title, id = self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         queryset = Review.objects.filter(title=title)
         return queryset
 
     def create(self, request, *args, **kwargs):
-
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+
+        if Review.objects.filter(author=request.user, title=title).all().count() != 0:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ReviewSerializer(data=request.data)
+
         if serializer.is_valid():
-            serializer.save(author=request.user)
+            if not (1 <= serializer.validated_data['score'] <= 10):
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save(author=request.user, title=title)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+
+    def create(self, request, *args, **kwargs):
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
+        serializer = CommentSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(author=request.user, review=review)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))

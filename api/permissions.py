@@ -29,4 +29,4 @@ class IsAuthorOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         else:
-            return obj.author == request.user
+            return bool(obj.author == request.user or request.user.role == Role.ADMIN or request.user.role == Role.MODERATOR)
