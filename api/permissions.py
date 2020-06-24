@@ -1,31 +1,39 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
+
 from api.models import Role
 
 
-class IsAdminOrReadOnly(BasePermission):
+class IsReadOnly(BasePermission):
     def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return True
-        else:
-            return bool(request.user and request.user.is_authenticated and request.user.role == Role.ADMIN)
+        return request.method in SAFE_METHODS
 
 
 class IsAdminClient(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated
-                    and request.user.role == Role.ADMIN)
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role == Role.ADMIN
+        )
 
 
 class IsModeratorClient(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated
-                    and request.user.role == Role.MODERATOR)
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role == Role.MODERATOR
+        )
 
 
-class IsAuthorOrReadOnly(BasePermission):
+class IsAuthorOrStaff(BasePermission):
     def has_object_permission(self, request, view, obj):
-
-        if request.method in SAFE_METHODS:
-            return True
-        else:
-            return bool(obj.author == request.user or request.user.role == Role.ADMIN or request.user.role == Role.MODERATOR)
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and bool(
+                request.user == obj.author
+                or request.user.role == Role.MODERATOR
+                or request.user.role == Role.ADMIN
+            )
+        )
