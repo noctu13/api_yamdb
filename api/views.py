@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 
 from rest_framework import viewsets, generics, filters, pagination, mixins, status
 from rest_framework.decorators import action
@@ -90,7 +91,7 @@ class GenreViewSet(mixins.CreateModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('review_title__score')).all()
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
