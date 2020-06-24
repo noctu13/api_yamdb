@@ -73,7 +73,6 @@ class Client(AbstractUser):
 
 
 class Category(models.Model):
-
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
@@ -116,7 +115,6 @@ class Review(models.Model):
     score = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        #выводим текст review
         return self.text
 
 

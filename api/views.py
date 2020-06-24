@@ -45,7 +45,6 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [IsAdminClient]
-    pagination_class = pagination.LimitOffsetPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', ]
     lookup_field = 'username'
