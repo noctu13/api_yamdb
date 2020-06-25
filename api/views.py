@@ -4,7 +4,14 @@ from django.utils.crypto import get_random_string
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 
-from rest_framework import viewsets, generics, filters, pagination, mixins, status
+from rest_framework import (
+    viewsets,
+    generics,
+    filters,
+    pagination,
+    mixins,
+    status,
+)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -45,7 +52,9 @@ class ClientViewSet(viewsets.ModelViewSet):
     lookup_field = "username"
 
     @action(
-        detail=False, methods=["get", "patch"], permission_classes=[IsAuthenticated]
+        detail=False,
+        methods=["get", "patch"],
+        permission_classes=[IsAuthenticated],
     )
     def me(self, request):
         if request.method == "GET":
@@ -89,7 +98,9 @@ class GenreViewSet(
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = models.Title.objects.annotate(rating=Avg("review_title__score")).all()
+    queryset = models.Title.objects.annotate(
+        rating=Avg("review_title__score")
+    ).all()
     permission_classes = [IsReadOnly | IsAdminClient]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
@@ -105,7 +116,9 @@ class ActionPermissionsMixins:
         try:
             return [
                 permission()
-                for permission in self.permission_classes_by_action[self.action]
+                for permission in self.permission_classes_by_action[
+                    self.action
+                ]
             ]
         except KeyError:
             return [permission() for permission in self.permission_classes]
@@ -129,7 +142,9 @@ class ReviewViewSet(ActionPermissionsMixins, viewsets.ModelViewSet):
         title = get_object_or_404(models.Title, id=self.kwargs.get("title_id"))
 
         if (
-            models.Review.objects.filter(author=request.user, title=title).all().count()
+            models.Review.objects.filter(author=request.user, title=title)
+            .all()
+            .count()
             != 0
         ):
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
@@ -157,13 +172,17 @@ class CommentViewSet(ActionPermissionsMixins, viewsets.ModelViewSet):
         try:
             return [
                 permission()
-                for permission in self.permission_classes_by_action[self.action]
+                for permission in self.permission_classes_by_action[
+                    self.action
+                ]
             ]
         except KeyError:
             return [permission() for permission in self.permission_classes]
 
     def create(self, request, *args, **kwargs):
-        review = get_object_or_404(models.Review, id=self.kwargs.get("review_id"))
+        review = get_object_or_404(
+            models.Review, id=self.kwargs.get("review_id")
+        )
         serializer = serializers.CommentSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -174,6 +193,8 @@ class CommentViewSet(ActionPermissionsMixins, viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(models.Title, id=self.kwargs.get("title_id"))
-        review = models.Review.objects.get(title=title, id=self.kwargs.get("review_id"))
+        review = models.Review.objects.get(
+            title=title, id=self.kwargs.get("review_id")
+        )
         queryset = models.Comment.objects.filter(review=review)
         return queryset

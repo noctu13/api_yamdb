@@ -11,7 +11,9 @@ class Role(models.TextChoices):
 
 
 class ClientManager(UserManager):
-    def _create_user(self, email, username=None, password=None, **extra_fields):
+    def _create_user(
+        self, email, username=None, password=None, **extra_fields
+    ):
         if not email:
             raise ValueError("The Email must be set")
         email = self.normalize_email(email)
@@ -26,7 +28,9 @@ class ClientManager(UserManager):
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, username, password, **extra_fields)
 
-    def create_superuser(self, email, username=None, password=None, **extra_fields):
+    def create_superuser(
+        self, email, username=None, password=None, **extra_fields
+    ):
         extra_fields.setdefault("role", Role.ADMIN)
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -49,11 +53,15 @@ class Client(AbstractUser):
             "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
         ),
         validators=[UnicodeUsernameValidator()],
-        error_messages={"unique": _("A user with that username already exists."),},
+        error_messages={
+            "unique": _("A user with that username already exists."),
+        },
         blank=True,
         null=True,
     )
-    role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER,)
+    role = models.CharField(
+        max_length=10, choices=Role.choices, default=Role.USER,
+    )
     bio = models.TextField(blank=True)
     confirmation_code = models.CharField(max_length=12, null=True)
     objects = ClientManager()
